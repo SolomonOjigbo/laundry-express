@@ -14,7 +14,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
-import { loginUser } from "../authReducer";
 const LoginScreen = () => {
 	const [email, setEmail] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -26,11 +25,8 @@ const LoginScreen = () => {
 		const unsubscribe = auth.onAuthStateChanged((authUser) => {
 			if (!authUser) {
 				setLoading(false);
-				navigation.replace("Login");
 			}
 			if (authUser) {
-				const currentUser = auth.currentUser;
-				loginUser(currentUser);
 				navigation.replace("Home");
 			}
 		});

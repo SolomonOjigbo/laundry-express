@@ -12,6 +12,7 @@ import OrderScreen from "./screens/OrderScreen";
 
 const StackNavigator = () => {
 	const Stack = createNativeStackNavigator();
+
 	return (
 		<NavigationContainer>
 			<Stack.Navigator>

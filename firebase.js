@@ -1,6 +1,11 @@
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+// import { initializeApp } from "firebase/app";
+// import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+
+import { getApp, getApps, initializeApp } from "firebase/app";
+import { getAuth, initializeAuth } from "firebase/auth";
+import { getReactNativePersistence } from "firebase/auth/react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 export const firebaseConfig = {
@@ -14,9 +19,20 @@ export const firebaseConfig = {
 	measurementId: "G-D09XDZP20N",
 };
 
-const app = initializeApp(firebaseConfig);
+let app;
+let auth;
+if (getApps().length < 1) {
+	app = initializeApp(firebaseConfig);
+	auth = initializeAuth(app, {
+		persistence: getReactNativePersistence(AsyncStorage),
+	});
+} else {
+	app = getApp();
+	auth = getAuth();
+}
+// const app = initializeApp(firebaseConfig);
 
-const auth = getAuth(app);
+// const auth = getAuth(app);
 
 const db = getFirestore();
 

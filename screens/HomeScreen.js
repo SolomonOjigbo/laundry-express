@@ -19,12 +19,13 @@ import DressItem from "../components/DressItem";
 import { useDispatch, useSelector } from "react-redux";
 import { getProducts } from "../ProductReducer";
 import { useNavigation } from "@react-navigation/native";
-import { collection, getDoc, getDocs } from "firebase/firestore";
-import { db } from "../firebase";
+import { collection, getDoc, getDocs, setDoc } from "firebase/firestore";
+import { auth, db } from "../firebase";
 
 const HomeScreen = () => {
 	const cart = useSelector((state) => state.cart.cart);
-	const [items, setItems] = useState([]);
+	// const [items, setItems] = useState([]);
+	const userUid = auth.currentUser.uid;
 	const product = useSelector((state) => state.product.product);
 	const dispatch = useDispatch();
 	const [searchItem, setSearchItem] = useState("");
@@ -96,12 +97,27 @@ const HomeScreen = () => {
 				let address = `${item.name} ${item.city} ${item.postalCode}`;
 				setdisplayCurrentAddress(address);
 			}
+			// const docRef = doc(db, "users", `${userUid}`);
+			// const docSnap = await getDoc(docRef);
+			const currentUser = await getDoc(doc(db, "users", `${userUid}`));
+			if (!currentUser.address) {
+				await setDoc(
+					doc(db, "users", `${userUid}`),
+					{
+						address: displayCurrentAddress,
+					},
+					{
+						merge: true,
+					}
+				);
+			}
 		}
 	};
 	useEffect(() => {
 		if (product.length > 0) return;
 
 		const fetchProducts = async () => {
+			let items = [];
 			const colRef = collection(db, "services");
 			const docsSnap = await getDocs(colRef);
 			docsSnap.forEach((doc) => {
@@ -112,10 +128,6 @@ const HomeScreen = () => {
 		fetchProducts();
 	}, []);
 	console.log(product);
-
-	// const onSearch = (e) => {
-	// 	const searchedProducts =
-	// }
 
 	const filteredProducts = product.filter((products) => {
 		return products.name.toLowerCase().includes(searchItem.toLowerCase());

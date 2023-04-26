@@ -21,18 +21,19 @@ import { auth, db } from "../firebase";
 import { useState } from "react";
 import { useEffect } from "react";
 import moment from "moment";
-import { userSelector } from "../authReducer";
+// import { userSelector } from "../authReducer";
 
 const CartScreen = () => {
 	const [deliveryFee, setDeliveryFee] = useState(null);
-	const user = useSelector(userSelector);
+	// const user = useSelector(userSelector);
 	const cart = useSelector((state) => state.cart.cart);
 	const route = useRoute();
 	const total = cart
 		.map((item) => item.quantity * item.price)
 		.reduce((curr, prev) => curr + prev, 0);
 	const navigation = useNavigation();
-	const userUid = auth.currentUser.uid;
+	const currentUser = auth.currentUser;
+	const userUid = currentUser.uid;
 	const dispatch = useDispatch();
 
 	useEffect(() => {
@@ -65,8 +66,9 @@ const CartScreen = () => {
 	const placeOrder = async () => {
 		navigation.navigate("Order");
 		dispatch(cleanCart());
+
 		await setDoc(
-			doc(db, "users", `${userUid}`),
+			doc(db, "orders", `${userUid}`),
 			{
 				orders: { ...cart },
 				pickUpDetails: route.params,
@@ -274,7 +276,7 @@ const CartScreen = () => {
 									<Text
 										style={{ fontSize: 18, fontWeight: "500", color: "gray" }}
 									>
-										selected Date
+										Pickup Date
 									</Text>
 									<Text
 										style={{
@@ -284,6 +286,30 @@ const CartScreen = () => {
 										}}
 									>
 										{moment(route.params.pickUpDate).format("ll")}
+									</Text>
+								</View>
+
+								<View
+									style={{
+										flexDirection: "row",
+										alignItems: "center",
+										justifyContent: "space-between",
+										marginVertical: 12,
+									}}
+								>
+									<Text
+										style={{ fontSize: 16, fontWeight: "500", color: "gray" }}
+									>
+										Adderss
+									</Text>
+									<Text
+										style={{
+											fontSize: 15,
+											fontWeight: "300",
+											color: "#088F8F",
+										}}
+									>
+										{route.params.delivery_Address}
 									</Text>
 								</View>
 

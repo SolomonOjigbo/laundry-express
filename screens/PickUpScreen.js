@@ -8,29 +8,34 @@ import {
 	ScrollView,
 	Alert,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import HorizontalDatepicker from "@awrminkhodaei/react-native-horizontal-datepicker";
 import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import moment from "moment";
+import { auth } from "../firebase";
 
 const PickUpScreen = () => {
 	const [selectedDate, setSelectedDate] = useState("");
 	const cart = useSelector((state) => state.cart.cart);
+	const [deliveryAddress, setDeliveryAddress] = useState("");
+	const [user, setUser] = useState(null);
 	const total = cart
 		.map((item) => item.quantity * item.price)
 		.reduce((curr, prev) => curr + prev, 0);
 	const [selectedTime, setSelectedTime] = useState([]);
 	const [delivery, setDelivery] = useState("");
-	// const [visible, setVisible] = React.useState(false);
-	// const [start, setStart] = React.useState("");
-	// const [end, setEnd] = React.useState("");
 
 	const deliveryTime = [
 		{
 			id: "0",
+			name: "Tomorrow",
+		},
+		{
+			id: "4",
 			name: "2-3 Days",
 		},
+
 		{
 			id: "1",
 			name: "3-4 Days",
@@ -42,10 +47,6 @@ const PickUpScreen = () => {
 		{
 			id: "3",
 			name: "5-6 Days",
-		},
-		{
-			id: "4",
-			name: "Tommorrow",
 		},
 	];
 
@@ -88,6 +89,10 @@ const PickUpScreen = () => {
 		},
 	];
 	const navigation = useNavigation();
+	useEffect(() => {
+		const customer = auth.currentUser;
+		setUser(customer);
+	}, []);
 	const proceedToCart = () => {
 		if (!selectedDate || !selectedTime || !delivery) {
 			Alert.alert(
@@ -109,6 +114,8 @@ const PickUpScreen = () => {
 				pickUpDate: selectedDate,
 				selectedTime: selectedTime,
 				no_Of_days: delivery,
+				delivery_Address: deliveryAddress,
+				email: user.email,
 			});
 		}
 	};
@@ -128,6 +135,8 @@ const PickUpScreen = () => {
 						borderRadius: 9,
 						margin: 10,
 					}}
+					placeholder="Enter Address"
+					onChangeText={(text) => setDeliveryAddress(text)}
 				/>
 
 				<Text style={{ fontSize: 16, fontWeight: "500", marginHorizontal: 10 }}>
@@ -212,24 +221,6 @@ const PickUpScreen = () => {
 						</Pressable>
 					))}
 				</ScrollView>
-				{/* <View>
-					<HorizontalDatepicker
-						mode="gregorian"
-						startDate={moment(new Date()).format("YYYY-MM-DD")}
-						endDate={moment().add(14, "days").calendar()}
-						initialSelectedDate={moment(new Date()).format("YYYY-MM-DD")}
-						onSelectedDateChange={(date) => setDelivery(date)}
-						selectedItemWidth={170}
-						unselectedItemWidth={38}
-						itemHeight={38}
-						itemRadius={10}
-						selectedItemTextStyle={styles.selectedItemTextStyle}
-						unselectedItemTextStyle={styles.selectedItemTextStyle}
-						selectedItemBackgroundColor="#222831"
-						unselectedItemBackgroundColor="#ececec"
-						flatListContainerStyle={styles.flatListContainerStyle}
-					/>
-				</View> */}
 			</SafeAreaView>
 
 			{total === 0 ? null : (
